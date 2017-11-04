@@ -31,12 +31,12 @@ import numpy as np
 N_AGENTS = 4
 BB_SIZE = 10
 STACK_SIZE = 200
-N_EPISODES = 10
-GAMES_PER_EPISODE = 500
+N_EPISODES = 500
+GAMES_PER_EPISODE = 100
 REPLAY_EVERY_N_GAMES = 64
 BATCH_SIZE = REPLAY_EVERY_N_GAMES
 N_ACTIONS = 7
-EVAL_EVERY_N_EPISODES = 2
+EVAL_EVERY_N_EPISODES = 10
 
 def run_episode(agents):
     emulator = Emulator()
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
     for e in range(N_EPISODES):
         new_agents, final_state, winner_counts, n_games_played = run_episode(agents)
-        print('Episode {} over'.format(e))
+        print('\nEpisode {} over'.format(e))
         # Pick best model
         highest_roll, highest_idx = 0, None
         for seat in final_state:
@@ -101,15 +101,16 @@ if __name__ == '__main__':
                 highest_roll = seat.stack
                 highest_idx = seat.uuid
         new_agents[highest_idx].model.reset_states()  # clear memory of RNN
-        old_agents = agents
-        agents = [new_agents[highest_idx]] * N_AGENTS
-        print(highest_roll)
 
         if e % EVAL_EVERY_N_EPISODES == 0 or e == N_EPISODES-1: # run 3x old versions against 1 new version
             print('====')
             print('Evaluating')
             _, final_state, winner_counts, n_games_played = run_episode([agents[0]] + old_agents[:-1])
-            print('New won against old {} percent of games'.format((winner_counts[0] / n_games_played) * 100))
+            print('\nNew won against old {} percent of games'.format((winner_counts[0] / n_games_played) * 100))
             print('====')
+            old_agents = agents
+
+        agents = [new_agents[highest_idx]] * N_AGENTS
+        print(highest_roll)
 
     agents[0].save('pokerai_rl.h5')
