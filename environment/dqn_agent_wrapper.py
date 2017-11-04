@@ -15,7 +15,6 @@ class DQNAgentWrapper(BasePokerPlayer):
         self.final_state = None
 
     def declare_action(self, valid_actions, hole_cards, game_state):
-        print(game_state)
         if self.player_idx is None:
             self.player_idx = game_state['next_player']
             self.player_uuid = game_state['seats'][self.player_idx]['uuid']
@@ -36,7 +35,7 @@ class DQNAgentWrapper(BasePokerPlayer):
         if self.prev_state is not None:
             self.agent.remember(self.prev_state, self.prev_action, self.prev_reward, features, 0)
         self.prev_state = features
-        self.prev_action = action
+        self.prev_action = action_idx
         self.prev_reward = 0
         return action, amount
 
