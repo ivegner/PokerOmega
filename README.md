@@ -2,7 +2,7 @@
 Reinforcement-Learning AI that learns Texas Hold'em by playing itself.
 
 ## Notes:
-* USE A VIRTUALENV (`virtualenvwrapper`) is lit. **Python 3**
+* USE A VIRTUALENV (`virtualenvwrapper` is lit). **Python 3**
 * `pip install -r requirements.txt`, and don't forget to add your required modules in there as well
 * `git push/pull` your shit often
 * Work on your own branches, make pull requests to master
