@@ -7,7 +7,7 @@ Reinforcement-Learning AI that learns Texas Hold'em by playing itself.
 * `git push/pull` your shit often
 * Work on your own branches, make pull requests to master
 
-## The Algoithm
+## The Algorithm
 We instantiate a game with four instances of our model initiallized with random starting parameters. We simulate multiple games of poker, with 4 players, each an instance of itself. We know that each instance of a model will differ in how it predicts opponents' moves since predictions naturally diverge due to the stochastic nature of Q-Learning. We then repeat this step to achieve a pseudo genetic learning algorithm through discounted future prediction.
 
 ## PyPokerEngine
