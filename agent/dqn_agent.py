@@ -4,7 +4,7 @@ from collections import deque
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
-from keras.layers import Dense, SimpleRNN, LSTM
+from keras.layers import Dense, SimpleRNN
 from keras.models import Sequential
 from keras.optimizers import Adam
 
@@ -24,8 +24,8 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(SimpleRNN(64, input_shape=(1, self.state_size), activation='relu', return_sequences=True))
-        model.add(SimpleRNN(64, activation='relu'))
+        model.add(SimpleRNN(128, input_shape=(1, self.state_size), activation='relu', return_sequences=True))
+        model.add(SimpleRNN(128, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
@@ -41,6 +41,7 @@ class DQNAgent:
         return np.argmax(act_values[0])  # returns action
 
     def replay(self, batch_size):
+        print(self.epsilon)
         minibatch = random.sample(self.memory, batch_size)
         for state, action, reward, next_state, done in minibatch:
             target = reward

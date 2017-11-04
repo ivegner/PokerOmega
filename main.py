@@ -29,12 +29,12 @@ import numpy as np
 N_AGENTS = 4
 BB_SIZE = 10
 STACK_SIZE = 200
-N_EPISODES = 40
-GAMES_PER_EPISODE = 100
-REPLAY_EVERY_N_GAMES = 32
+N_EPISODES = 400
+GAMES_PER_EPISODE = 500
+REPLAY_EVERY_N_GAMES = 1
 BATCH_SIZE = REPLAY_EVERY_N_GAMES
 N_ACTIONS = 7
-EVAL_EVERY_N_EPISODES = 5
+EVAL_EVERY_N_EPISODES = 1
 USE_ROLL_INSTEAD_OF_WIN_COUNT = False
 
 def run_episode(agents):
@@ -72,14 +72,17 @@ def run_episode(agents):
         temp_final_state = game_finish_state['table'].seats.players
 
         # print('====')
-        print('\rGame {} out of {}'.format(game, GAMES_PER_EPISODE), end='')
+        print('\rGame {} out of {}, epsilon {}'.format(game, GAMES_PER_EPISODE, agents[0].epsilon), end='')
         # print(game_finish_state)
         # print('\n')
         # print(events[-5:])
         # print('====')
-        if game % REPLAY_EVERY_N_GAMES == 0 or game == GAMES_PER_EPISODE - 1:
+
+        if (game % REPLAY_EVERY_N_GAMES == 0) or (game == GAMES_PER_EPISODE - 1):
             # replay memory for every agent
-            map(lambda a: a.replay(BATCH_SIZE), agents)
+            for agent in agents:
+                agent.replay(BATCH_SIZE)
+            # map(lambda a: a.replay(BATCH_SIZE), agents)
     return agents, temp_final_state, winner_counts, n_games_played
 
 if __name__ == '__main__':
