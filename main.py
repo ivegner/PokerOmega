@@ -20,23 +20,22 @@ End episode
 Pick best model
 Lather, rinse, repeat for n episodes
 '''
-import copy
 from agent.dqn_agent import DQNAgent
 from environment.sample_state import SAMPLE_STATE, SAMPLE_HOLE_CARDS, SAMPLE_ACTIONS
 from environment.dqn_agent_wrapper import DQNAgentWrapper
 from pypokerengine.api.emulator import Emulator
-from pypokerengine.utils.game_state_utils import attach_hole_card_from_deck
 import numpy as np
 
 N_AGENTS = 4
 BB_SIZE = 10
 STACK_SIZE = 200
-N_EPISODES = 500
+N_EPISODES = 40
 GAMES_PER_EPISODE = 100
-REPLAY_EVERY_N_GAMES = 64
+REPLAY_EVERY_N_GAMES = 32
 BATCH_SIZE = REPLAY_EVERY_N_GAMES
 N_ACTIONS = 7
 EVAL_EVERY_N_EPISODES = 5
+USE_ROLL_INSTEAD_OF_WIN_COUNT = False
 
 def run_episode(agents):
     emulator = Emulator()
@@ -96,27 +95,31 @@ if __name__ == '__main__':
         new_agents, final_state, winner_counts, n_games_played = run_episode(agents)
         print('\nEpisode {} over'.format(e))
         # Pick best model
-        highest_roll, highest_idx = 0, None
-        for seat in final_state:
-            if seat.stack > highest_roll:
-                highest_roll = seat.stack
-                highest_idx = seat.uuid
+        highest_idx = None
+        if USE_ROLL_INSTEAD_OF_WIN_COUNT:
+            highest_roll = 0
+            for seat in final_state:
+                if seat.stack > highest_roll:
+                    highest_roll = seat.stack
+                    highest_idx = seat.uuid
+        else:
+            highest_idx = np.argmax(winner_counts)
         new_agents[highest_idx].model.reset_states()  # clear memory of RNN
 
-        if e == N_EPISODES-1:
+        if e == N_EPISODES-1 or e % EVAL_EVERY_N_EPISODES == 0:
             print('====')
-            print('Evaluating')
+            print('Final evaluation')
             _, final_state, winner_counts, n_games_played = run_episode([agents[0]] + oldest_agents[:-1])
-            print('\nNew won against old {} percent of games'.format((winner_counts[0] / n_games_played) * 100))
+            print('\nNewest best won against oldest {} percent of games'.format((winner_counts[0] / n_games_played) * 100))
             print('====')
 
-        elif e % EVAL_EVERY_N_EPISODES == 0: # run 3x old versions against 1 new version
-            print('====')
-            print('Evaluating')
-            _, final_state, winner_counts, n_games_played = run_episode([agents[0]] + old_agents[:-1])
-            print('\nNew won against old {} percent of games'.format((winner_counts[0] / n_games_played) * 100))
-            print('====')
-            old_agents = agents
+        # elif e % EVAL_EVERY_N_EPISODES == 0: # run 3x old versions against 1 new version
+        #     print('====')
+        #     print('Evaluating')
+        #     _, final_state, winner_counts, n_games_played = run_episode([agents[0]] + old_agents[:-1])
+        #     print('\nNew won against old {} percent of games'.format((winner_counts[0] / n_games_played) * 100))
+        #     print('====')
+        #     old_agents = agents
 
         agents = [new_agents[highest_idx]] * N_AGENTS
 

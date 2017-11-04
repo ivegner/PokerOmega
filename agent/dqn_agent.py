@@ -4,7 +4,7 @@ from collections import deque
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
-from keras.layers import Dense, SimpleRNN
+from keras.layers import Dense, SimpleRNN, LSTM
 from keras.models import Sequential
 from keras.optimizers import Adam
 
