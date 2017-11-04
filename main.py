@@ -33,7 +33,7 @@ BB_SIZE = 10
 STACK_SIZE = 200
 N_EPISODES = 10
 GAMES_PER_EPISODE = 500
-REPLAY_EVERY_N_GAMES = 32
+REPLAY_EVERY_N_GAMES = 64
 BATCH_SIZE = REPLAY_EVERY_N_GAMES
 N_ACTIONS = 7
 EVAL_EVERY_N_EPISODES = 2
@@ -73,7 +73,7 @@ def run_episode(agents):
         temp_final_state = game_finish_state['table'].seats.players
 
         # print('====')
-        print('Game {} out of {}'.format(game, GAMES_PER_EPISODE))
+        print('\rGame {} out of {}'.format(game, GAMES_PER_EPISODE), end='')
         # print(game_finish_state)
         # print('\n')
         # print(events[-5:])
