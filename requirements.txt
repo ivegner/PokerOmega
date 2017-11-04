@@ -1,4 +1,5 @@
 pypokerengine
 numpy
 keras
-sklearntensorflow
+sklearn
+tensorflow

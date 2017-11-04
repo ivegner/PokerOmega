@@ -15,6 +15,7 @@ class DQNAgentWrapper(BasePokerPlayer):
         self.final_state = None
 
     def declare_action(self, valid_actions, hole_cards, game_state):
+        print(game_state)
         if self.player_idx is None:
             self.player_idx = game_state['next_player']
             self.player_uuid = game_state['seats'][self.player_idx]['uuid']
