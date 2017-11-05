@@ -1,4 +1,4 @@
-# Poker
+# PokerAI
 Reinforcement-Learning AI that learns Texas Hold'em by playing itself
 
 ## The Algorithm
