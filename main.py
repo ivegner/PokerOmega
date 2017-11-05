@@ -29,12 +29,12 @@ import numpy as np
 N_AGENTS = 4
 BB_SIZE = 10
 STACK_SIZE = 200
-N_EPISODES = 40
+N_EPISODES = 120
 GAMES_PER_EPISODE = 100
-REPLAY_EVERY_N_GAMES = 8
+REPLAY_EVERY_N_GAMES = 16
 BATCH_SIZE = REPLAY_EVERY_N_GAMES
 N_ACTIONS = 7
-EVAL_EVERY_N_EPISODES = 1
+EVAL_EVERY_N_EPISODES = 5
 USE_ROLL_INSTEAD_OF_WIN_COUNT = False
 
 def run_episode(agents):
@@ -64,25 +64,28 @@ def run_episode(agents):
         #     with open('event_dump_' + str(game), 'w') as f:
         #         json.dump(events, f, indent=2)
 
-        winner = events[-2]['winners'][0]['uuid']
-        winner_counts[winner] += 1
-        n_games_played += 1
+        try:
+            winner = events[-2]['winners'][0]['uuid']
+            winner_counts[winner] += 1
+            n_games_played += 1
 
-        agents[:] = [wrapper.agent for wrapper in wrappers]
-        temp_final_state = game_finish_state['table'].seats.players
+            agents[:] = [wrapper.agent for wrapper in wrappers]
+            temp_final_state = game_finish_state['table'].seats.players
 
-        # print('====')
-        print('\rGame {} out of {}, epsilon {}'.format(game, GAMES_PER_EPISODE, agents[0].epsilon), end='')
-        # print(game_finish_state)
-        # print('\n')
-        # print(events[-5:])
-        # print('====')
+            # print('====')
+            print('\rGame {} out of {}, epsilon {}'.format(game, GAMES_PER_EPISODE, agents[0].epsilon), end='')
+            # print(game_finish_state)
+            # print('\n')
+            # print(events[-5:])
+            # print('====')
 
-        if (game % REPLAY_EVERY_N_GAMES == 0) or (game == GAMES_PER_EPISODE - 1):
-            # replay memory for every agent
-            for agent in agents:
-                agent.replay(BATCH_SIZE)
-            # map(lambda a: a.replay(BATCH_SIZE), agents)
+            if (game % REPLAY_EVERY_N_GAMES == 0) or (game == GAMES_PER_EPISODE - 1):
+                # replay memory for every agent
+                for agent in agents:
+                    agent.replay(BATCH_SIZE)
+
+        except KeyError:
+            pass
     return agents, temp_final_state, winner_counts, n_games_played
 
 if __name__ == '__main__':
