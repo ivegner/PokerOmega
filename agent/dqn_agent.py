@@ -17,7 +17,7 @@ class DQNAgent:
         self.gamma = 0.95  # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.999
+        self.epsilon_decay = 0.998
         self.learning_rate = 0.001
         self.model = self._build_model()
         self.num_agents = num_agents
@@ -25,8 +25,8 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(SimpleRNN(128, input_shape=(1, self.state_size), activation='relu', return_sequences=True))
-        model.add(SimpleRNN(128, activation='relu'))
+        model.add(SimpleRNN(64, input_shape=(1, self.state_size), activation='relu', return_sequences=True))
+        model.add(SimpleRNN(64, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
