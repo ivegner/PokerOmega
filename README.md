@@ -1,5 +1,5 @@
 # PokerAI
-Reinforcement-Learning AI that learns Texas Hold'em by playing itself.
+Reinforcement-Learning AI that learns Texas Hold'em by playing itself
 
 ## Notes:
 * USE A VIRTUALENV (`virtualenvwrapper` is lit). **Python 3**
