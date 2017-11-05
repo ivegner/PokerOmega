@@ -11,13 +11,13 @@ from keras.optimizers import Adam
 
 class DQNAgent:
     def __init__(self, state_size, action_size, num_agents):
-        self.state_size = 132
+        self.state_size = 134
         self.action_size = action_size
         self.memory = deque()
-        self.gamma = 0.80  # discount rate
+        self.gamma = 0.95  # discount rate
         self.epsilon = 1.0  # exploration rate
-        self.epsilon_min = 0.05
-        self.epsilon_decay = 0.999
+        self.epsilon_min = 0.01
+        self.epsilon_decay = 0.998
         self.learning_rate = 0.001
         self.model = self._build_model()
         self.num_agents = num_agents
@@ -142,7 +142,6 @@ class DQNAgent:
             temp_move_zeroes[i] = m
         money_since_our_last_move = temp_move_zeroes
 
-
         # amt to call
         amt_to_call = [0]
         for action in valid_actions:
@@ -150,9 +149,11 @@ class DQNAgent:
                 amt_to_call = [action['amount'] / bb_amount]
                 break
 
+        min_raise, max_raise = valid_actions[2]['amount']['min'] / bb_amount, valid_actions[2]['amount']['max'] / bb_amount
+
         feature_arrays = [hole_values, hole_suits, river_values, river_suits, total_pot_as_bb,
                 own_stack_size, other_players_stack_sizes, player_folds, money_since_our_last_move,
-                amt_to_call]
+                amt_to_call, min_raise, max_raise]
 
         ret = None
 
