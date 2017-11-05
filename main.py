@@ -51,7 +51,7 @@ def run_episode(agents):
             #         player_info[seat.uuid] = {'name': 'Player ' + str(seat.uuid), 'stack': seat.stack if seat.stack else STACK_SIZE}
             # else:
             player_info[i] = {'name': 'Player ' + str(i), 'stack': STACK_SIZE}
-            wrappers.append(DQNAgentWrapper(agent))
+            wrappers.append(DQNAgentWrapper(agent, STACK_SIZE))
             emulator.register_player(uuid=i, player=wrappers[-1])
         emulator.set_game_rule(N_AGENTS, 2, BB_SIZE / 2, 0)
         initial_game_state = emulator.generate_initial_game_state(player_info)
@@ -71,7 +71,8 @@ def run_episode(agents):
 
         for i in range(N_AGENTS):
             reward = (game_finish_state['table'].seats.players[i].stack - wrappers[i].init_stack_size) / BB_SIZE
-            wrappers[i].remember(wrappers[i].prev_state, wrappers[i].prev_action, reward, None, 1)
+            # print('Starting stack:', wrappers[i].init_stack_size, 'Ending stack:', game_finish_state['table'].seats.players[i].stack, 'Reward:', reward)
+            wrappers[i].agent.remember(wrappers[i].prev_state, wrappers[i].prev_action, reward, None, 1)
 
         temp_final_state = game_finish_state['table'].seats.players
 

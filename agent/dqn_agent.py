@@ -48,9 +48,9 @@ class DQNAgent:
         minibatch = random.sample(self.memory, batch_size)
         for state, action, reward, next_state, done in minibatch:
             state = state.reshape((1,1,len(state)))
-            next_state = next_state.reshape((1,1,len(next_state)))
             target = reward
             if not done:
+                next_state = next_state.reshape((1,1,len(next_state)))
                 target = (reward + self.gamma *
                           np.amax(self.model.predict(next_state)[0]))
             target_f = self.model.predict(state)

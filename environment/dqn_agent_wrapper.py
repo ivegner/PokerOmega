@@ -2,7 +2,7 @@ from pypokerengine.players import BasePokerPlayer
 
 RAISE_AMTS = [1, 2, 3, 5, 8]
 class DQNAgentWrapper(BasePokerPlayer):
-    def __init__(self, agent):
+    def __init__(self, agent, init_stack_size):
         super(DQNAgentWrapper, self).__init__()
         self.agent = agent
         self.prev_state = None
@@ -11,7 +11,7 @@ class DQNAgentWrapper(BasePokerPlayer):
         self.player_idx = None
         self.player_uuid = None
         self.bb_amount = None
-        self.init_stack_size = None
+        self.init_stack_size = init_stack_size
         self.final_state = None
 
     def declare_action(self, valid_actions, hole_cards, game_state):
@@ -19,7 +19,7 @@ class DQNAgentWrapper(BasePokerPlayer):
             self.player_idx = game_state['next_player']
             self.player_uuid = game_state['seats'][self.player_idx]['uuid']
             self.bb_amount = game_state['small_blind_amount'] * 2
-            self.init_stack_size = game_state['seats'][self.player_idx]['stack']
+
         features = self.agent.make_features(valid_actions, hole_cards, game_state)
         action_idx = self.agent.act(features)
         action, amount = None, 0
