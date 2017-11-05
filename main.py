@@ -25,13 +25,14 @@ from environment.sample_state import SAMPLE_STATE, SAMPLE_HOLE_CARDS, SAMPLE_ACT
 from environment.dqn_agent_wrapper import DQNAgentWrapper
 from pypokerengine.api.emulator import Emulator
 import numpy as np
+import sys
 
 N_AGENTS = 4
 BB_SIZE = 10
 STACK_SIZE = 200
-N_EPISODES = 120
-GAMES_PER_EPISODE = 300
-REPLAY_EVERY_N_GAMES = 32
+N_EPISODES = 160
+GAMES_PER_EPISODE = 700
+REPLAY_EVERY_N_GAMES = 10
 BATCH_SIZE = REPLAY_EVERY_N_GAMES
 N_ACTIONS = 7
 EVAL_EVERY_N_EPISODES = 5
@@ -99,8 +100,17 @@ if __name__ == '__main__':
     STATE_SIZE = len(_sample_features)
 
     oldest_agents = [DQNAgent(STATE_SIZE, N_ACTIONS,N_AGENTS)] * N_AGENTS
-    old_agents = [DQNAgent(STATE_SIZE, N_ACTIONS,N_AGENTS)] * N_AGENTS
+    # old_agents = [DQNAgent(STATE_SIZE, N_ACTIONS,N_AGENTS)] * N_AGENTS
     agents = [DQNAgent(STATE_SIZE, N_ACTIONS,N_AGENTS)] * N_AGENTS
+
+    if len(sys.argv) >= 3 and sys.argv[1] == '-l':    # load provided filename as weights
+        for a in agents:
+            a.load(sys.argv[2])
+
+    hyperparam_list = {'games_per_episode': GAMES_PER_EPISODE, 'replay': REPLAY_EVERY_N_GAMES, 'n_episodes': N_EPISODES,
+                       'n_agents': N_AGENTS, 'epsilon_min': agents[0].epsilon_min, 'epsilon_decay': agents[0].epsilon_decay,
+                       'gamma': agents[0].gamma}
+    print(hyperparam_list)
 
     for e in range(N_EPISODES):
         new_agents, final_state, winner_counts, n_games_played = run_episode(agents)
@@ -136,3 +146,4 @@ if __name__ == '__main__':
 
 
     agents[0].save('pokerai_rl.h5')
+
