@@ -11,13 +11,13 @@ from keras.optimizers import Adam
 
 class DQNAgent:
     def __init__(self, state_size, action_size, num_agents):
-        self.state_size = 133
+        self.state_size = 132
         self.action_size = action_size
         self.memory = deque()
         self.gamma = 0.95  # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
+        self.epsilon_decay = 0.999
         self.learning_rate = 0.001
         self.model = self._build_model()
         self.num_agents = num_agents
@@ -43,6 +43,8 @@ class DQNAgent:
         return np.argmax(act_values[0])  # returns action
 
     def replay(self, batch_size):
+        if batch_size > len(self.memory):
+            return
         minibatch = random.sample(self.memory, batch_size)
         for state, action, reward, next_state, done in minibatch:
             state = state.reshape((1,1,len(state)))
@@ -131,7 +133,8 @@ class DQNAgent:
             else:
                 break
         moves_since_our_last.reverse()
-        temp_move_zeroes = np.zeros(self.num_agents+1)
+        moves_since_our_last = moves_since_our_last[:self.num_agents]
+        temp_move_zeroes = np.zeros(self.num_agents)
         money_since_our_last_move = [a.get('amount', 0) for a in moves_since_our_last]
         for i, m in enumerate(money_since_our_last_move):
             temp_move_zeroes[i] = m
