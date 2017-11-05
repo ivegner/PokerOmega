@@ -10,8 +10,8 @@ from keras.optimizers import Adam
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size):
-        self.state_size = state_size
+    def __init__(self, state_size, action_size, num_agents):
+        self.state_size = 133
         self.action_size = action_size
         self.memory = deque()
         self.gamma = 0.95  # discount rate
@@ -20,6 +20,7 @@ class DQNAgent:
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
         self.model = self._build_model()
+        self.num_agents = num_agents
 
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
@@ -35,22 +36,24 @@ class DQNAgent:
         self.memory.append((state, action, reward, next_state, done))
 
     def act(self, state):
+        state = state.reshape((1, 1, len(state)))
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.action_size)
         act_values = self.model.predict([state])
         return np.argmax(act_values[0])  # returns action
 
     def replay(self, batch_size):
-        print(self.epsilon)
         minibatch = random.sample(self.memory, batch_size)
         for state, action, reward, next_state, done in minibatch:
+            state = state.reshape((1,1,len(state)))
+            next_state = next_state.reshape((1,1,len(next_state)))
             target = reward
             if not done:
                 target = (reward + self.gamma *
-                          np.amax(self.model.predict([next_state])[0]))
-            target_f = self.model.predict([state])
+                          np.amax(self.model.predict(next_state)[0]))
+            target_f = self.model.predict(state)
             target_f[0][action] = target
-            self.model.fit([state], [target_f], epochs=1, verbose=0)
+            self.model.fit(state, target_f, epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
@@ -128,7 +131,12 @@ class DQNAgent:
             else:
                 break
         moves_since_our_last.reverse()
+        temp_move_zeroes = np.zeros(self.num_agents+1)
         money_since_our_last_move = [a.get('amount', 0) for a in moves_since_our_last]
+        for i, m in enumerate(money_since_our_last_move):
+            temp_move_zeroes[i] = m
+        money_since_our_last_move = temp_move_zeroes
+
 
         # amt to call
         amt_to_call = [0]
@@ -149,6 +157,7 @@ class DQNAgent:
                 ret = np.concatenate((ret, array))
             else:
                 ret = array
+
         return ret
 
     def _cards_to_arrays(self, cards):
