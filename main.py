@@ -87,12 +87,12 @@ def run_episode(agents):
 
 if __name__ == '__main__':
     # used only for calculating # of features
-    _sample_features = DQNAgent(3, 3).make_features(SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS, SAMPLE_STATE)
+    _sample_features = DQNAgent(3, 3, N_AGENTS).make_features(SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS, SAMPLE_STATE)
     STATE_SIZE = len(_sample_features)
 
-    oldest_agents = [DQNAgent(STATE_SIZE, N_ACTIONS)] * N_AGENTS
-    old_agents = [DQNAgent(STATE_SIZE, N_ACTIONS)] * N_AGENTS
-    agents = [DQNAgent(STATE_SIZE, N_ACTIONS)] * N_AGENTS
+    oldest_agents = [DQNAgent(STATE_SIZE, N_ACTIONS,N_AGENTS)] * N_AGENTS
+    old_agents = [DQNAgent(STATE_SIZE, N_ACTIONS,N_AGENTS)] * N_AGENTS
+    agents = [DQNAgent(STATE_SIZE, N_ACTIONS,N_AGENTS)] * N_AGENTS
 
     for e in range(N_EPISODES):
         new_agents, final_state, winner_counts, n_games_played = run_episode(agents)
