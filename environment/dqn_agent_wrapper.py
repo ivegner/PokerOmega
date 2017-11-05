@@ -40,10 +40,7 @@ class DQNAgentWrapper(BasePokerPlayer):
         return action, amount
 
     def receive_round_result_message(self, winners, hand_info, round_state):
-        self.final_state = round_state
-        reward = (round_state['seats'][self.player_idx]['stack'] - self.init_stack_size) / self.bb_amount
-        self.agent.memory.pop()
-        self.agent.remember(self.prev_state, self.prev_action, reward, None, 1)
+        pass
 
     def receive_game_start_message(self, game_info):
         pass

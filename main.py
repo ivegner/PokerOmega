@@ -57,35 +57,37 @@ def run_episode(agents):
         initial_game_state = emulator.generate_initial_game_state(player_info)
 
         game_state, events = emulator.start_new_round(initial_game_state)
-        game_finish_state, events = emulator.run_until_game_finish(game_state)
+        game_finish_state, events = emulator.run_until_round_finish(game_state)
 
-        # if len(events) > 1000:
+        # import json
+        # if game == 0 or game == 1:
         #     print('dumping')
         #     with open('event_dump_' + str(game), 'w') as f:
         #         json.dump(events, f, indent=2)
 
-        try:
-            winner = events[-2]['winners'][0]['uuid']
-            winner_counts[winner] += 1
-            n_games_played += 1
+        winner = events[-1]['winners'][0]['uuid']
+        winner_counts[winner] += 1
+        n_games_played += 1
 
-            agents[:] = [wrapper.agent for wrapper in wrappers]
-            temp_final_state = game_finish_state['table'].seats.players
+        for i in range(N_AGENTS):
+            reward = (game_finish_state['table'].seats.players[i].stack - wrappers[i].init_stack_size) / BB_SIZE
+            wrappers[i].remember(wrappers[i].prev_state, wrappers[i].prev_action, reward, None, 1)
 
-            # print('====')
-            print('\rGame {} out of {}, epsilon {}'.format(game, GAMES_PER_EPISODE, agents[0].epsilon), end='')
-            # print(game_finish_state)
-            # print('\n')
-            # print(events[-5:])
-            # print('====')
+        temp_final_state = game_finish_state['table'].seats.players
 
-            if (game % REPLAY_EVERY_N_GAMES == 0) or (game == GAMES_PER_EPISODE - 1):
-                # replay memory for every agent
-                for agent in agents:
-                    agent.replay(BATCH_SIZE)
+        # print('====')
+        print('\rGame {} out of {}, epsilon {}'.format(game, GAMES_PER_EPISODE, agents[0].epsilon), end='')
+        # print(game_finish_state)
+        # print('\n')
+        # print(events[-5:])
+        # print('====')
 
-        except KeyError:
-            pass
+        if (game % REPLAY_EVERY_N_GAMES == 0) or (game == GAMES_PER_EPISODE - 1):
+            # replay memory for every agent
+            for agent in agents:
+                agent.replay(BATCH_SIZE)
+
+
     return agents, temp_final_state, winner_counts, n_games_played
 
 if __name__ == '__main__':
