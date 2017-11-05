@@ -16,8 +16,8 @@ class DQNAgent:
         self.memory = deque()
         self.gamma = 0.95  # discount rate
         self.epsilon = 1.0  # exploration rate
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.998
+        self.epsilon_min = 0.05
+        self.epsilon_decay = 0.999
         self.learning_rate = 0.001
         self.model = self._build_model()
         self.num_agents = num_agents
@@ -25,7 +25,8 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(SimpleRNN(64, input_shape=(1, self.state_size), activation='relu', return_sequences=True))
+        model.add(SimpleRNN(32, input_shape=(1, self.state_size), activation='relu', return_sequences=True))
+        model.add(SimpleRNN(32, input_shape=(1, self.state_size), activation='relu', return_sequences=True))
         model.add(SimpleRNN(64, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
@@ -47,6 +48,8 @@ class DQNAgent:
             return
         minibatch = random.sample(self.memory, batch_size)
         for state, action, reward, next_state, done in minibatch:
+            if state is None:
+                continue
             state = state.reshape((1,1,len(state)))
             target = reward
             if not done:
