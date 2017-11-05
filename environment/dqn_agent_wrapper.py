@@ -1,6 +1,6 @@
 from pypokerengine.players import BasePokerPlayer
 
-RAISE_AMTS = [1, 2, 3, 5, 8]
+RAISE_AMTS = [3, 6, 9, 12, 15, 18]
 class DQNAgentWrapper(BasePokerPlayer):
     def __init__(self, agent, init_stack_size):
         super(DQNAgentWrapper, self).__init__()
