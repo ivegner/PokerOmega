@@ -30,8 +30,8 @@ N_AGENTS = 4
 BB_SIZE = 10
 STACK_SIZE = 200
 N_EPISODES = 120
-GAMES_PER_EPISODE = 100
-REPLAY_EVERY_N_GAMES = 16
+GAMES_PER_EPISODE = 300
+REPLAY_EVERY_N_GAMES = 32
 BATCH_SIZE = REPLAY_EVERY_N_GAMES
 N_ACTIONS = 7
 EVAL_EVERY_N_EPISODES = 5
@@ -64,6 +64,8 @@ def run_episode(agents):
         #     print('dumping')
         #     with open('event_dump_' + str(game), 'w') as f:
         #         json.dump(events, f, indent=2)
+        if 'winners' not in events[-1]:
+            events.pop()
 
         winner = events[-1]['winners'][0]['uuid']
         winner_counts[winner] += 1
