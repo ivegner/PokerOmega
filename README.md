@@ -1,10 +1,5 @@
-## A Poker AI 
-
-## The Algorithm
-We instantiate a game with four instances of our model initiallized with random starting parameters. We simulate multiple games of poker, with 4 players, each an instance of itself. We know that each instance of a model will differ in how it predicts opponents' moves since predictions naturally diverge due to the stochastic nature of Q-Learning. We then repeat this step to achieve a pseudo genetic learning algorithm through discounted future prediction.
-
-## PyPokerEngine
-For the sake of time, we retrofitted our algorithm to use the pre-coded PyPokerEngine library.
+## PokerOmega:
+Check out https://cursedhydra.github.io/ for info
 
 ## Notes:
 * USE A VIRTUALENV (`virtualenvwrapper` is lit). **Python 3**
