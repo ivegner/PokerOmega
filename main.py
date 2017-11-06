@@ -30,13 +30,13 @@ import sys
 N_AGENTS = 4
 BB_SIZE = 10
 STACK_SIZE = 200
-N_EPISODES = 40
-GAMES_PER_EPISODE = 100
+N_EPISODES = 100
+GAMES_PER_EPISODE = 200
 REPLAY_EVERY_N_GAMES = 10
 BATCH_SIZE = REPLAY_EVERY_N_GAMES
 N_ACTIONS = 8
-EVAL_EVERY_N_EPISODES = 5
-USE_ROLL_INSTEAD_OF_WIN_COUNT = False
+EVAL_EVERY_N_EPISODES = 10
+USE_ROLL_INSTEAD_OF_WIN_COUNT = True
 PERSISTENT_STACKS = False
 EVAL_AGAINST_RANDOM = True  # False = evaluates against older version (EVAL_EVERY_N_EPISODES episodes older)
 
@@ -87,7 +87,7 @@ def run_episode(agents):
         temp_final_state = game_finish_state['table'].seats.players
 
         # print('====')
-        print('\rGame {} out of {}, epsilon {}'.format(game, GAMES_PER_EPISODE, agents[0].epsilon), end='')
+        print('\rGame {} out of {}, epsilon {}\r'.format(game, GAMES_PER_EPISODE, agents[0].epsilon), end='')
         # print(game_finish_state)
         # print('\n')
         # print(events[-5:])
