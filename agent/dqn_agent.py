@@ -25,11 +25,8 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(SimpleRNN(256, input_shape=(1, self.state_size), activation='relu'))
+        model.add(SimpleRNN(64, input_shape=(1, self.state_size), activation='relu'))
         model.add(Dense(128, activation='relu'))
-        model.add(Dense(64, activation='relu'))
-        model.add(Dense(32, activation='relu'))
-        model.add(Dense(16, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
@@ -52,10 +49,10 @@ class DQNAgent:
         for state, action, reward, next_state, done in minibatch:
             if state is None:
                 continue
-            state = state.reshape((1, 1, len(state)))
+            state = state.reshape((1,1,len(state)))
             target = reward
             if not done:
-                next_state = next_state.reshape((1, 1, len(next_state)))
+                next_state = next_state.reshape((1,1,len(next_state)))
                 target = (reward + self.gamma *
                           np.amax(self.model.predict(next_state)[0]))
             target_f = self.model.predict(state)
@@ -152,12 +149,11 @@ class DQNAgent:
                 amt_to_call = [action['amount'] / bb_amount]
                 break
 
-        min_raise, max_raise = valid_actions[2]['amount']['min'] / bb_amount, valid_actions[2]['amount'][
-            'max'] / bb_amount
+        min_raise, max_raise = valid_actions[2]['amount']['min'] / bb_amount, valid_actions[2]['amount']['max'] / bb_amount
 
         feature_arrays = [hole_values, hole_suits, river_values, river_suits, total_pot_as_bb,
-                          own_stack_size, other_players_stack_sizes, player_folds, money_since_our_last_move,
-                          amt_to_call, min_raise, max_raise]
+                own_stack_size, other_players_stack_sizes, player_folds, money_since_our_last_move,
+                amt_to_call, min_raise, max_raise]
 
         ret = None
 
