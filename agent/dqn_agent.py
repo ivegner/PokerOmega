@@ -7,6 +7,7 @@ from sklearn.preprocessing import OneHotEncoder
 from keras.layers import Dense, SimpleRNN
 from keras.models import Sequential
 from keras.optimizers import Adam
+from keras.models import model_from_json
 
 
 class DQNAgent:
@@ -25,10 +26,11 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(SimpleRNN(64, input_shape=(1, self.state_size), activation='relu'))
-        model.add(Dense(128, activation='relu'))
+        model.add(SimpleRNN(256, input_shape=(1, self.state_size), activation='relu'))
+        model.add(Dense(64, activation='relu'))
+        model.add(Dense(16, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
-        model.compile(loss='mse',
+        model.compile(loss='mse',       # if you change this, make sure to change it in set_model
                       optimizer=Adam(lr=self.learning_rate))
         return model
 
@@ -178,3 +180,10 @@ class DQNAgent:
             suits.append(card[0])
             values.append(int(card[1:]))
         return suits, values
+
+    def set_model(self, model, weights):
+        self.model = Sequential.from_config(model)
+        self.model.set_weights(weights)
+        self.model.compile(loss='mse',
+                           optimizer=Adam(lr=self.learning_rate))
+
