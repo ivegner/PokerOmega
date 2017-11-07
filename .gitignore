@@ -101,3 +101,7 @@ ENV/
 .mypy_cache/
 
 .idea/
+<<<<<<< HEAD
+=======
+*.h5
+>>>>>>> master
