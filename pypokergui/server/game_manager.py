@@ -72,9 +72,10 @@ class GameManager(object):
         )
         min_raise = ask_message['message']['valid_actions'][2]['amount']['min']
         max_raise = ask_message['message']['valid_actions'][2]['amount']['max']
+        print('uuid: {} declares: {}'.format(uuid, action))
         if action[0] == 'raise' and (action[1] < min_raise or action[1] > max_raise):
             action = ('fold', 0)
-        print('uuid: {} declares: {}'.format(uuid, action))
+            print("INVALID!")
         return action
 
 def fetch_next_player_uuid(new_messages):
@@ -91,7 +92,7 @@ def build_ai_players(members_info):
     holder = {}
     for member in members_info:
         if member["type"] == "human": continue
-        holder[member["uuid"]] = _build_ai_player(member["setup_script_path"], members_info['model_path'])
+        holder[member["uuid"]] = _build_ai_player(member["setup_script_path"], member['model_path'])
     return holder
 
 def _build_ai_player(setup_script_path, model_path):

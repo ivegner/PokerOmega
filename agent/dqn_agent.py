@@ -28,7 +28,7 @@ class DQNAgent:
         model = Sequential()
         model.add(SimpleRNN(256, input_shape=(1, self.state_size), activation='relu'))
         model.add(Dense(64, activation='relu'))
-        model.add(Dense(16, activation='relu'))
+        model.add(Dense(32, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',       # if you change this, make sure to change it in set_model
                       optimizer=Adam(lr=self.learning_rate))
@@ -40,9 +40,10 @@ class DQNAgent:
     def act(self, state):
         state = state.reshape((1, 1, len(state)))
         if np.random.rand() <= self.epsilon:
-            return random.randrange(self.action_size)
-        act_values = self.model.predict([state])
-        return np.argmax(act_values[0])  # returns action
+            return np.random.uniform(low=-10, high=10, size=(self.action_size,))
+
+        act_values = self.model.predict([state])[0]
+        return act_values  # returns action
 
     def replay(self, batch_size):
         if batch_size > len(self.memory):

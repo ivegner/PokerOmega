@@ -13,7 +13,7 @@ def build_config(players=None, max_round=None, initial_stack=None, small_blind=N
         "ai_players": [],
         "model_path": model_path
         }
-    path = os.path.abspath(model)
+    path = os.path.abspath('setup_gui_ai.py')
     for i in range(players):
         config['ai_players'].append({'name': 'Player_' + str(i), 'path': path})
 

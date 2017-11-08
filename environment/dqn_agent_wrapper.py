@@ -1,4 +1,5 @@
 from pypokerengine.players import BasePokerPlayer
+import numpy as np
 
 RAISE_AMTS = [3, 6, 9, 12, 15, 18]
 class DQNAgentWrapper(BasePokerPlayer):
@@ -21,23 +22,38 @@ class DQNAgentWrapper(BasePokerPlayer):
             self.bb_amount = game_state['small_blind_amount'] * 2
 
         features = self.agent.make_features(valid_actions, hole_cards, game_state)
-        action_idx = self.agent.act(features)
-        action, amount = None, 0
-        if action_idx == 0:
-            action = 'fold'
-        if action_idx == 1:
-            action = 'call'
-            amount = valid_actions[1]['amount']
-        else:
-            action = 'raise'
-            amount = RAISE_AMTS[action_idx-2] * self.bb_amount
+        actions = self.agent.act(features)
+        action_str, chosen_action, amount = None, None, 0
+        sorted_by_best_action = np.argsort(actions)[::-1]   # first entry is index of best action
+
+        _valid_action, _valid_action_idx = False, 0
+        while not _valid_action:     # find best valid action
+            chosen_action = sorted_by_best_action[_valid_action_idx]
+            if chosen_action == 0:
+                action_str = 'fold'
+                amount = 0
+                _valid_action = True
+                break
+            elif chosen_action == 1:
+                action_str = 'call'
+                amount = valid_actions[1]['amount']
+                _valid_action = True
+                break
+            else:
+                action_str = 'raise'
+                amount = RAISE_AMTS[chosen_action-2] * self.bb_amount
+                if valid_actions[2]['amount']['min'] <= amount <= valid_actions[2]['amount']['max']:
+                    _valid_action = True
+                    break
+                else:
+                    _valid_action_idx += 1
 
         if self.prev_state is not None:
             self.agent.remember(self.prev_state, self.prev_action, self.prev_reward, features, 0)
         self.prev_state = features
-        self.prev_action = action_idx
+        self.prev_action = chosen_action
         self.prev_reward = 0
-        return action, amount
+        return action_str, amount
 
     def receive_round_result_message(self, winners, hand_info, round_state):
         pass
