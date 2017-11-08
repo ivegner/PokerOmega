@@ -158,10 +158,10 @@ if len(sys.argv) >= 3 and sys.argv[1] == '-l':  # load provided filename as weig
     for a in agents:
         a.load(sys.argv[2])
 
-hyperparam_list = {'games_per_episode': GAMES_PER_EPISODE, 'replay': REPLAY_EVERY_N_GAMES, 'n_episodes': N_EPISODES,
-                    'n_agents': N_AGENTS, 'epsilon_min': agents[0].epsilon_min,
-                    'epsilon_decay': agents[0].epsilon_decay,
-                    'gamma': agents[0].gamma}
+hyperparam_list = {'games_per_episode': GAMES_PER_EPISODE, 'replay': REPLAY_EVERY_N_GAMES,
+                   'n_episodes': N_EPISODES, 'n_agents': N_AGENTS, 'epsilon_min': agents[0].epsilon_min,
+                   'epsilon_decay': agents[0].epsilon_decay, 'gamma': agents[0].gamma}
+
 print(hyperparam_list)
 
 for e in range(N_EPISODES):

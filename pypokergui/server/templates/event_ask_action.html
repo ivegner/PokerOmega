@@ -1,0 +1,23 @@
+{% extends "base_event.html" %}
+
+{% block event_title %}Declare Your Action{% end %}
+
+{% block event_content %}
+<div id="ask_action">
+  <h3>Hole Card : {{hole_card}}</h3>
+  {% for card in hole_card %}
+    <img class="card" src="{{ static_url("images/card_%s.png" % card) }}" >
+  {% end %}
+  <h3>Valid Actions</h3>
+  <ul class="list-group">
+    {% for action in valid_actions %}
+    <li class="list-group-item">
+      <span>{{action['action'].upper()}}</span>
+        :
+      <span>{{action['amount']}}</span>
+    </li>
+    {% end %}
+  </ul>
+  <span style="display:none">>Action History: {{action_histories }}</span>
+</div>
+{% end %}
