@@ -14,6 +14,9 @@ import webbrowser
 
 from pypokergui.server.poker import start_server
 from pypokergui.config_builder import build_config
+import numpy as np
+
+np.random.seed(np.random.randint(1000000))
 
 @click.group()
 def cli():

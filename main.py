@@ -20,14 +20,17 @@ End episode
 Pick best model
 Lather, rinse, repeat for n episodes
 '''
-from agent.dqn_agent import DQNAgent
-from environment.sample_state import SAMPLE_STATE, SAMPLE_HOLE_CARDS, SAMPLE_ACTIONS
-from environment.dqn_agent_wrapper import DQNAgentWrapper
-from pypokerengine.api.emulator import Emulator
-import numpy as np
-import sys
 import argparse
-import copy
+import sys
+
+import numpy as np
+from keras.models import clone_model
+from pypokerengine.api.emulator import Emulator
+
+from agent.dqn_agent import DQNAgent
+from environment.dqn_agent_wrapper import DQNAgentWrapper
+from environment.sample_state import (SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS,
+                                      SAMPLE_STATE)
 
 np.random.seed(12)
 
@@ -37,11 +40,14 @@ def parse_cli():
     parser.add_argument('--games', '-g', default='100', dest='games_per_episode', type=int, help = '(default: %(default)s)')
     parser.add_argument('--replay-every', '-r', dest='replay_every', default='20', type=int, help = '(default: %(default)s)')
     parser.add_argument('--episodes', '-e', dest='n_episodes', default='30', type=int, help = '(default: %(default)s)')
+    parser.add_argument('--start-epsilon', '--starte', dest='start_e', default='1.0', type=float, help = '(default: %(default)s)')
     parser.add_argument('--epsilon-min', '--emin', dest='e_min', default='0.01', type=float, help = '(default: %(default)s)')
     parser.add_argument('--epsilon-decay', '--edec', dest='e_decay', default='0.995', type=float, help = '(default: %(default)s)')
     parser.add_argument('--gamma', default='0.95', dest='gamma', type=float, help = '(default: %(default)s)')
     parser.add_argument('--eval-every', '--eval', dest='eval_every', default='10', type=int, help = '(default: %(default)s)')
     parser.add_argument('--eval-against-random', '--random', dest='random_eval', default=False, action='store_true', help = '(default: %(default)s)')
+    parser.add_argument('--load', '-l', dest='load', default=None,
+                        help='Model weights file to restore. Will still initiate other vars to the other CLI params.')
     parser.add_argument('--output', '-o', dest='output_filename', default=None,
                         help='IF NOT SET, WILL NOT SAVE TRAINED MODEL. Automatically appends ".h5"')
     return parser.parse_args()
@@ -62,6 +68,7 @@ REPLAY_EVERY_N_GAMES = args.replay_every
 BATCH_SIZE = REPLAY_EVERY_N_GAMES
 EVAL_EVERY_N_EPISODES = args.eval_every
 EVAL_AGAINST_RANDOM = args.random_eval  # False = evaluates against older version (EVAL_EVERY_N_EPISODES episodes older)
+STARTING_EPSILON = args.start_e
 E_MIN = args.e_min
 E_DECAY = args.e_decay
 GAMMA = args.gamma
@@ -114,7 +121,7 @@ def run_episode(agents):
         temp_final_state = game_finish_state['table'].seats.players
 
         # print('====')
-        print('\r{}'.format(game), end='')
+        print('\rGame:{}, epsilon:{}'.format(game, wrappers[0].agent.epsilon), end='')
         # print(game_finish_state)
         # print('\n')
         # print(events[-5:])
@@ -135,16 +142,14 @@ def run_episode(agents):
 
 def copy_agent(agent):
     weights = agent.model.get_weights()
-    model = agent.model.get_config()
-    del agent.model
-    copied = copy.deepcopy(agent)
-    agent.set_model(model, weights)
-    copied.set_model(model, weights)
+    copied_model = clone_model(agent.model)
+    copied = DQNAgent(*agent.get_init_info())
+    copied.set_model(copied_model, weights)
     return copied
     #return agent
 
 def make_random_agents():
-    return [DQNAgent(STATE_SIZE, N_ACTIONS, N_AGENTS, E_MIN, E_DECAY, GAMMA)] * N_AGENTS
+    return [DQNAgent(STATE_SIZE, N_ACTIONS, N_AGENTS, STARTING_EPSILON, E_MIN, E_DECAY, GAMMA)] * N_AGENTS
 
 # # used only for calculating # of features
 # _sample_features = DQNAgent(3, 3, N_AGENTS).make_features(SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS, SAMPLE_STATE)
@@ -154,12 +159,14 @@ oldest_agents = make_random_agents()
 old_agents = make_random_agents()
 agents = make_random_agents()
 
-if len(sys.argv) >= 3 and sys.argv[1] == '-l':  # load provided filename as weights
+# If load filename given, load weights
+if args.load is not None:
     for a in agents:
-        a.load(sys.argv[2])
+        a.load(args.load)
+
 
 hyperparam_list = {'games_per_episode': GAMES_PER_EPISODE, 'replay': REPLAY_EVERY_N_GAMES,
-                   'n_episodes': N_EPISODES, 'n_agents': N_AGENTS, 'epsilon_min': agents[0].epsilon_min,
+                   'n_episodes': N_EPISODES, 'n_agents': N_AGENTS, 'start_epsilon': agents[0].epsilon, 'epsilon_min': agents[0].epsilon_min,
                    'epsilon_decay': agents[0].epsilon_decay, 'gamma': agents[0].gamma}
 
 print(hyperparam_list)

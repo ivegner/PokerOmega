@@ -10,6 +10,6 @@ EPSILON = 0.01
 
 def setup_ai(model_path):
     agent = DQNAgent(STATE_SIZE, N_ACTIONS, N_AGENTS, None, None, None)
-    agent.epsilon = 0.01
+    agent.epsilon = EPSILON
     agent.load(model_path)
     return DQNAgentWrapper(agent, STACK_SIZE)
