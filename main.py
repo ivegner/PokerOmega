@@ -21,7 +21,6 @@ Pick best model
 Lather, rinse, repeat for n episodes
 '''
 import argparse
-import sys
 
 import numpy as np
 from keras.models import clone_model
