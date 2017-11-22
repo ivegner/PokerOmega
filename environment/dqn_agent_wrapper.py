@@ -6,14 +6,13 @@ class DQNAgentWrapper(BasePokerPlayer):
     def __init__(self, agent, init_stack_size):
         super(DQNAgentWrapper, self).__init__()
         self.agent = agent
+        self.prev_stack_size = init_stack_size
         self.prev_state = None
         self.prev_action = None
         self.prev_reward = None
         self.player_idx = None
         self.player_uuid = None
         self.bb_amount = None
-        self.init_stack_size = init_stack_size
-        self.final_state = None
 
     def declare_action(self, valid_actions, hole_cards, game_state):
         if self.player_idx is None:
@@ -23,6 +22,7 @@ class DQNAgentWrapper(BasePokerPlayer):
 
         features = self.agent.make_features(valid_actions, hole_cards, game_state)
         actions = self.agent.act(features)
+        # print(actions)
         action_str, chosen_action, amount = None, None, 0
         sorted_by_best_action = np.argsort(actions)[::-1]   # first entry is index of best action
 
@@ -48,11 +48,12 @@ class DQNAgentWrapper(BasePokerPlayer):
                 else:
                     _valid_action_idx += 1
 
-        if self.prev_state is not None:
-            self.agent.remember(self.prev_state, self.prev_action, self.prev_reward, features, 0)
+        self.agent.remember(self.prev_state, self.prev_action, self.prev_reward, features, 0)
         self.prev_state = features
         self.prev_action = chosen_action
-        self.prev_reward = 0
+        new_stack_size = game_state['seats'][self.player_idx]['stack']
+        self.prev_reward = new_stack_size - self.prev_stack_size # reward for chosen_action
+        self.prev_stack_size = new_stack_size
         return action_str, amount
 
     def receive_round_result_message(self, winners, hand_info, round_state):
