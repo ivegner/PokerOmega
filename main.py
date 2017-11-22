@@ -111,6 +111,12 @@ def run_episode(agents):
         winner_counts[winner] += 1
         n_games_played += 1
 
+        for i in range(N_AGENTS):
+            new_stack_size = game_finish_state['table'].seats.players[i].stack
+            reward = (new_stack_size - wrappers[i].prev_stack_size) / BB_SIZE
+            print('Remembering {} reward for {} action'.format(reward, wrappers[i].prev_action))
+            wrappers[i].agent.remember(wrappers[i].prev_state, wrappers[i].prev_action, reward, None, 1)
+
         temp_final_state = game_finish_state['table'].seats.players
 
         # print('====')
