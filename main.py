@@ -128,16 +128,14 @@ def run_episode(agents):
 
         if (game % REPLAY_EVERY_N_GAMES == 0) or (game == GAMES_PER_EPISODE - 1):
             # replay memory for every agent
-            for agent in agents:
-                agent.replay(BATCH_SIZE)
+            # for agent in agents:
+            #     agent.replay(BATCH_SIZE)
+            agents[0].replay(BATCH_SIZE)
 
         for i in range(N_AGENTS):
             agents[i].model.reset_states()
 
-    for i in range(N_AGENTS):   # clear memory for fresh experience replay next episode
-        agents[i].memory.clear()
-
-    return agents, temp_final_state, winner_counts, n_games_played
+    return agents[0], temp_final_state, winner_counts, n_games_played
 
 def copy_agent(agent):
     weights = agent.model.get_weights()
@@ -172,21 +170,10 @@ print(hyperparam_list)
 
 for e in range(N_EPISODES):
     oldest_agents = make_random_agents()
-    new_agents, final_state, winner_counts, n_games_played = run_episode(agents)
+    new_agent, final_state, winner_counts, n_games_played = run_episode(agents)
 
     print('\nEpisode {} over'.format(e))
-    # Pick best model
-    highest_idx = None
-    if USE_ROLL_INSTEAD_OF_WIN_COUNT:
-        highest_roll = 0
-        for seat in final_state:
-            if seat.stack > highest_roll:
-                highest_roll = seat.stack
-                highest_idx = seat.uuid
-    else:
-        highest_idx = np.argmax(winner_counts)
-    #new_agents[highest_idx].model.reset_states()# clear memory of RNN
-    best_current_agent = copy_agent(new_agents[highest_idx])
+    best_current_agent = copy_agent(new_agent)
     agents = [copy_agent(best_current_agent)] * N_AGENTS
 
     if EVAL_AGAINST_RANDOM:
