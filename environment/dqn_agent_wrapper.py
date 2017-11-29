@@ -49,7 +49,7 @@ class DQNAgentWrapper(BasePokerPlayer):
                     _valid_action_idx += 1
 
         new_stack_size = game_state['seats'][self.player_idx]['stack']
-        reward = (new_stack_size - self.prev_stack_size) / self.bb_amount
+        reward = ((new_stack_size - self.prev_stack_size) / self.bb_amount) ** 2
         # print('Going to remember {} reward for {} action'.format(reward, self.prev_action))
         if self.prev_action is not None:
             self.agent.remember(self.prev_state, self.prev_action, reward, features, 0)
