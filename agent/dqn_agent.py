@@ -8,13 +8,13 @@ from keras.layers import Dense, SimpleRNN
 from keras.models import Sequential
 from keras.optimizers import Adam
 
-
 def _explode_array(array):
     return [[a] for a in array]
 
 SUIT_TO_INT_ENC = LabelEncoder().fit(['H', 'S', 'D', 'C'])
 SUIT_INT_TO_ONEHOT_ENC = OneHotEncoder(sparse=False).fit(_explode_array(range(0, 4)))
 VALUE_INT_TO_ONEHOT_ENC = OneHotEncoder(sparse=False).fit(_explode_array(range(2, 15)))
+MEMORY = deque()
 
 def suits_to_onehot(suits):
     def _suits_to_ints(suits):
@@ -28,6 +28,8 @@ def suits_to_onehot(suits):
 def card_values_to_onehot(values):
     return VALUE_INT_TO_ONEHOT_ENC.transform(_explode_array(values))
 
+def clear_memory():
+    MEMORY.clear()
 
 class DQNAgent:
     def __init__(self, state_size, action_size, num_agents, starting_epsilon, e_min, e_decay, gamma):
@@ -39,7 +41,6 @@ class DQNAgent:
         self.epsilon_decay = e_decay
         self.gamma = gamma  # discount rate
 
-        self.memory = deque()
         self.learning_rate = 0.001
         self.model = self._build_model()
 
@@ -56,7 +57,7 @@ class DQNAgent:
         return model
 
     def remember(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))
+        MEMORY.append((state, action, reward, next_state, done))
 
     def act(self, state):
         state = state.reshape((1, 1, len(state)))
@@ -67,9 +68,9 @@ class DQNAgent:
         return act_values  # returns action
 
     def replay(self, batch_size):
-        if batch_size > len(self.memory):
+        if batch_size > len(MEMORY):
             return
-        minibatch = random.sample(self.memory, batch_size)
+        minibatch = random.sample(MEMORY, batch_size)
         for state, action, reward, next_state, done in minibatch:
             if state is None:
                 continue

@@ -26,7 +26,7 @@ import numpy as np
 from keras.models import clone_model
 from pypokerengine.api.emulator import Emulator
 
-from agent.dqn_agent import DQNAgent
+from agent.dqn_agent import DQNAgent, clear_memory
 from environment.dqn_agent_wrapper import DQNAgentWrapper
 from environment.sample_state import (SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS,
                                       SAMPLE_STATE)
@@ -64,7 +64,7 @@ N_AGENTS = args.n_agents
 N_EPISODES = args.n_episodes
 GAMES_PER_EPISODE = args.games_per_episode
 REPLAY_EVERY_N_GAMES = args.replay_every
-BATCH_SIZE = REPLAY_EVERY_N_GAMES
+BATCH_SIZE = REPLAY_EVERY_N_GAMES * N_AGENTS
 EVAL_EVERY_N_EPISODES = args.eval_every
 EVAL_AGAINST_RANDOM = args.random_eval  # False = evaluates against older version (EVAL_EVERY_N_EPISODES episodes older)
 STARTING_EPSILON = args.start_e
@@ -134,7 +134,7 @@ def run_episode(agents):
 
         for i in range(N_AGENTS):
             agents[i].model.reset_states()
-
+    clear_memory()
     return agents[0], temp_final_state, winner_counts, n_games_played
 
 def copy_agent(agent):
