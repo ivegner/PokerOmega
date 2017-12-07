@@ -4,3 +4,4 @@ keras
 sklearn
 tensorflow
 h5py
+click
