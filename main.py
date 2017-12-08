@@ -21,9 +21,11 @@ Pick best model
 Lather, rinse, repeat for n episodes
 '''
 import argparse
+import logging
 
 import numpy as np
 from keras.models import clone_model
+from keras.backend import clear_session
 from pypokerengine.api.emulator import Emulator
 
 from agent.dqn_agent import DQNAgent, clear_memory
@@ -74,6 +76,8 @@ E_MIN = args.e_min
 E_DECAY = args.e_decay
 GAMMA = args.gamma
 
+logging.basicConfig(level=logging.DEBUG)
+
 def run_episode(agents):
     emulator = Emulator()
     temp_final_state = {}
@@ -116,17 +120,12 @@ def run_episode(agents):
         for i in range(N_AGENTS):
             new_stack_size = game_finish_state['table'].seats.players[i].stack
             reward = (new_stack_size - wrappers[i].prev_stack_size) / BB_SIZE
-            #print('Remembering {} reward for {} action'.format(reward, wrappers[i].prev_action))
+            # print('Remembering {} reward for {} action'.format(reward, wrappers[i].prev_action))
             wrappers[i].agent.remember(wrappers[i].prev_state, wrappers[i].prev_action, reward, None, 1)
 
         temp_final_state = game_finish_state['table'].seats.players
 
-        # print('====')
         print('\rGame:{}, epsilon:{}'.format(game, wrappers[0].agent.epsilon), end='')
-        # print(game_finish_state)
-        # print('\n')
-        # print(events[-5:])
-        # print('====')
 
         if (game % REPLAY_EVERY_N_GAMES == 0) or (game == GAMES_PER_EPISODE - 1):
             # replay memory for every agent
@@ -206,8 +205,11 @@ for e in range(N_EPISODES):
                         (winner_counts[0] / n_games_played) * 100))
                     print('====')
 
+                    best_agent_weights = best_current_agent.model.get_weights()
+                    clear_session()
                     for agent_idx in range(N_AGENTS):
-                        old_agents[agent_idx] = copy_agent(best_current_agent)
+                        old_agents[agent_idx] = DQNAgent(*best_current_agent.get_init_info())
+                        old_agents[agent_idx].model.set_weights(best_agent_weights)
 
 if args.output_filename:
     agents[0].save(args.output_filename + '.h5')
