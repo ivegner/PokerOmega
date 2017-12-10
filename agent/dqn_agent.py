@@ -7,6 +7,7 @@ from sklearn.preprocessing import OneHotEncoder
 from keras.layers import Dense, SimpleRNN
 from keras.models import Sequential
 from keras.optimizers import Adam
+from keras import backend as K
 
 def _explode_array(array):
     return [[a] for a in array]
@@ -91,6 +92,9 @@ class DQNAgent:
 
     def save(self, name):
         self.model.save_weights(name)
+
+    def clear_session(self):
+        K.clear_session()
 
     def make_features(self, valid_actions, hole_cards, game_state):
         player_idx = game_state['next_player']

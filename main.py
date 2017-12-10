@@ -25,13 +25,12 @@ import argparse
 import numpy as np
 from keras.models import clone_model
 from pypokerengine.api.emulator import Emulator
-
+from timeit import default_timer as timer
 from agent.dqn_agent import DQNAgent, clear_memory
 from environment.dqn_agent_wrapper import DQNAgentWrapper
-from environment.sample_state import (SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS,
-                                      SAMPLE_STATE)
 
-#TODO: Features, Autosave, 1) Memory leak, clear_session()
+
+#TODO: Features, Autosave
 
 np.random.seed(12)
 
@@ -136,6 +135,7 @@ def run_episode(agents):
 
         for i in range(N_AGENTS):
             agents[i].model.reset_states()
+
     clear_memory()
     return agents[0], temp_final_state, winner_counts, n_games_played
 
@@ -160,8 +160,8 @@ agents = make_random_agents()
 
 # If load filename given, load weights
 if args.load is not None:
-    for a in agents:
-        a.load(args.load)
+    for agent in agents:
+        agent.load(args.load)
 
 
 hyperparam_list = {'games_per_episode': GAMES_PER_EPISODE, 'replay': REPLAY_EVERY_N_GAMES,
@@ -171,12 +171,16 @@ hyperparam_list = {'games_per_episode': GAMES_PER_EPISODE, 'replay': REPLAY_EVER
 print(hyperparam_list)
 
 for e in range(N_EPISODES):
+    timerStart = timer()
     oldest_agents = make_random_agents()
     new_agent, final_state, winner_counts, n_games_played = run_episode(agents)
 
+
     print('\nEpisode {} over'.format(e))
-    best_current_agent = copy_agent(new_agent)
-    agents = [copy_agent(best_current_agent)] * N_AGENTS
+    # best_current_agent = copy_agent(new_agent)
+    # agents = [copy_agent(best_current_agent)] * N_AGENTS
+    best_current_agent = new_agent #No need for deep copy anymore(?)
+    agents = [best_current_agent] * N_AGENTS
 
     if EVAL_AGAINST_RANDOM:
         if e == N_EPISODES - 1 or e % EVAL_EVERY_N_EPISODES == 0:
@@ -187,27 +191,29 @@ for e in range(N_EPISODES):
                 print('\nNewest best won against oldest {} percent of games'.format(
                     (winner_counts[0] / n_games_played) * 100))
                 print('====')
-
     else:
         if e == N_EPISODES - 1 or e % EVAL_EVERY_N_EPISODES == 0:  # run 3x old versions against 1 new version
             if e != 0:
-                if e % 100 == 0:
-                    print('====')
-                    print('Final evaluation')
-                    _, final_state, winner_counts, n_games_played = run_episode([best_current_agent] + oldest_agents[:-1])
-                    print('\nNewest best won against oldest {} percent of games'.format(
-                        (winner_counts[0] / n_games_played) * 100))
-                    print('====')
-                else:
-                    print('====')
-                    print('Evaluating')
-                    _, final_state, winner_counts, n_games_played = run_episode([best_current_agent] + old_agents[:-1])
-                    print('\nNew won against old {} percent of games'.format(
-                        (winner_counts[0] / n_games_played) * 100))
-                    print('====')
+                # if e % 100 == 0:
+                #     print('====')
+                #     print('Final evaluation')
+                #     _, final_state, winner_counts, n_games_played = run_episode([best_current_agent] + oldest_agents[:-1])
+                #     print('\nNewest best won against oldest {} percent of games'.format(
+                #         (winner_counts[0] / n_games_played) * 100))
+                #     print('====')
+                # else:
+                print('====')
+                print('Evaluating')
+                _, final_state, winner_counts, n_games_played = run_episode([best_current_agent] + old_agents[:-1])
+                print('\nNew won against old {} percent of games'.format(
+                    (winner_counts[0] / n_games_played) * 100))
+                print('====')
 
-                    for agent_idx in range(N_AGENTS):
-                        old_agents[agent_idx] = copy_agent(best_current_agent)
+                for agent_idx in range(N_AGENTS):
+                    # old_agents[agent_idx] = copy_agent(best_current_agent)
+                    old_agents[agent_idx] = best_current_agent #No need for deep copy anymore(?)
+        print("This episode took " + str(np.round(timer() - timerStart, 4)) + " seconds to run")
+
 
 if args.output_filename:
     agents[0].save(args.output_filename + '.h5')
