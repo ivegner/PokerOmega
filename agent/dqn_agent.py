@@ -1,13 +1,12 @@
-import logging
 import random
 from collections import deque
 
 import numpy as np
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
 from keras.layers import Dense, SimpleRNN
 from keras.models import Sequential
 from keras.optimizers import Adam
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-
 
 def _explode_array(array):
     return [[a] for a in array]
@@ -30,8 +29,6 @@ def card_values_to_onehot(values):
     return VALUE_INT_TO_ONEHOT_ENC.transform(_explode_array(values))
 
 def clear_memory():
-    print('\n')
-    logging.debug('Memory length: {}'.format(len(MEMORY)))
     MEMORY.clear()
 
 class DQNAgent:
