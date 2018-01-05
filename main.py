@@ -21,14 +21,14 @@ Pick best model
 Lather, rinse, repeat for n episodes
 '''
 import argparse
+from timeit import default_timer as timer
 
 import numpy as np
 from keras.models import clone_model
 from pypokerengine.api.emulator import Emulator
-from timeit import default_timer as timer
+
 from agent.dqn_agent import DQNAgent, clear_memory
 from environment.dqn_agent_wrapper import DQNAgentWrapper
-
 
 #TODO: Features, Autosave
 
@@ -165,8 +165,9 @@ if args.load is not None:
 
 
 hyperparam_list = {'games_per_episode': GAMES_PER_EPISODE, 'replay': REPLAY_EVERY_N_GAMES,
-                   'n_episodes': N_EPISODES, 'n_agents': N_AGENTS, 'start_epsilon': agents[0].epsilon, 'epsilon_min': agents[0].epsilon_min,
-                   'epsilon_decay': agents[0].epsilon_decay, 'gamma': agents[0].gamma}
+                   'n_episodes': N_EPISODES, 'n_agents': N_AGENTS, 'start_epsilon': agents[0].epsilon,
+                   'epsilon_min': agents[0].epsilon_min, 'epsilon_decay': agents[0].epsilon_decay,
+                   'gamma': agents[0].gamma}
 
 print(hyperparam_list)
 
