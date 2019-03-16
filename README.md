@@ -1,5 +1,5 @@
 ## PokerOmega:
-Check out https://cursedhydra.github.io/ for info
+A self-learning multi-agent poker player, a la AlphaGo. It learns but doesn't work too hot, probably because of insufficient training time/resources.
 
 ## Notes:
 * USE A VIRTUALENV (`virtualenvwrapper` is great). **Python 3**
